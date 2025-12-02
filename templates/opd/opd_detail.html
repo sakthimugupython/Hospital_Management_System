@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}OPD #{{ opd_record.opd_number }}{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-procedures"></i> OPD Record Details</h1>
+        <div>
+            <button onclick="window.print()" class="btn btn-info">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <a href="{% url 'opd_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>OPD #{{ opd_record.opd_number }}</h5>
+            <p class="mb-0">Visit Date: {{ opd_record.visit_date|date:"M d, Y h:i A" }}</p>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6>Patient Information</h6>
+                    <p><strong>Name:</strong> {{ opd_record.patient.get_full_name }}</p>
+                    <p><strong>Patient ID:</strong> {{ opd_record.patient.patient_id }}</p>
+                    <p><strong>Age:</strong> {{ opd_record.patient.date_of_birth|calculate_age }} years</p>
+                    <p><strong>Blood Group:</strong> {{ opd_record.patient.blood_group }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h6>Doctor Information</h6>
+                    <p><strong>Name:</strong> Dr. {{ opd_record.doctor.user.get_full_name }}</p>
+                    <p><strong>Specialization:</strong> {{ opd_record.doctor.specialization }}</p>
+                </div>
+            </div>
+
+            <h6>Vitals</h6>
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <p><strong>BP:</strong> {{ opd_record.vitals_bp|default:"N/A" }}</p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>Temperature:</strong> {{ opd_record.vitals_temperature|default:"N/A" }}°F</p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>Pulse:</strong> {{ opd_record.vitals_pulse|default:"N/A" }} bpm</p>
+                </div>
+                <div class="col-md-3">
+                    <p><strong>Weight:</strong> {{ opd_record.vitals_weight|default:"N/A" }} kg</p>
+                </div>
+            </div>
+
+            <h6>Symptoms</h6>
+            <p>{{ opd_record.symptoms }}</p>
+
+            <h6>Diagnosis</h6>
+            <p>{{ opd_record.diagnosis }}</p>
+
+            <h6>Prescription</h6>
+            <p class="prescription-text">{{ opd_record.prescription }}</p>
+
+            {% if opd_record.notes %}
+            <h6>Additional Notes</h6>
+            <p>{{ opd_record.notes }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

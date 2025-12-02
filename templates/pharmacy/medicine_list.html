@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pharmacy - Medicines{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-pills"></i> Pharmacy - Medicines</h1>
+        <a href="{% url 'medicine_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Medicine
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <a href="{% url 'medicine_list' %}?low_stock=1" class="btn btn-warning w-100">
+                        <i class="fas fa-exclamation-triangle"></i> Low Stock Items
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'medicine_list' %}?expired=1" class="btn btn-danger w-100">
+                        <i class="fas fa-calendar-times"></i> Expired Medicines
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'medicine_list' %}" class="btn btn-info w-100">
+                        <i class="fas fa-list"></i> All Medicines
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-list"></i> Medicine Inventory
+        </div>
+        <div class="card-body">
+            {% if medicines %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Medicine Name</th>
+                            <th>Type</th>
+                            <th>Manufacturer</th>
+                            <th>Unit Price</th>
+                            <th>Stock</th>
+                            <th>Reorder Level</th>
+                            <th>Expiry Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for medicine in medicines %}
+                        <tr {% if medicine.is_expired %}class="table-danger" {% elif medicine.needs_reorder
+                            %}class="table-warning" {% endif %}>
+                            <td><strong>{{ medicine.medicine_name }}</strong></td>
+                            <td>{{ medicine.medicine_type }}</td>
+                            <td>{{ medicine.manufacturer }}</td>
+                            <td>₹{{ medicine.unit_price|floatformat:2 }}</td>
+                            <td>
+                                <span
+                                    class="badge {% if medicine.needs_reorder %}bg-warning{% else %}bg-success{% endif %}">
+                                    {{ medicine.stock_quantity }}
+                                </span>
+                            </td>
+                            <td>{{ medicine.reorder_level }}</td>
+                            <td>
+                                {{ medicine.expiry_date|date:"M d, Y" }}
+                                {% if medicine.is_expired %}
+                                <span class="badge bg-danger">Expired</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'medicine_edit' medicine.pk %}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-pills fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No medicines found</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

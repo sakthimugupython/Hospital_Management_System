@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Wards{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-hospital-alt"></i> Wards</h1>
+        <div>
+            <a href="{% url 'bed_list' %}" class="btn btn-info me-2">
+                <i class="fas fa-bed"></i> View All Beds
+            </a>
+            <a href="{% url 'ward_add' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add Ward
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for ward in wards %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header {% if ward.ward_type == 'ICU' %}bg-danger{% elif ward.ward_type == 'General' %}bg-info{% elif ward.ward_type == 'Private' %}bg-success{% elif ward.ward_type == 'Emergency' %}bg-warning{% endif %}">
+                    <h5 class="mb-0 text-white">{{ ward.ward_name }}</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Type:</strong> <span class="badge {% if ward.ward_type == 'ICU' %}bg-danger{% elif ward.ward_type == 'General' %}bg-info{% elif ward.ward_type == 'Private' %}bg-success{% elif ward.ward_type == 'Emergency' %}bg-warning{% endif %}">{{ ward.get_ward_type_display }}</span></p>
+                    <p><strong>Floor:</strong> {{ ward.floor }}</p>
+                    <p><strong>Total Beds:</strong> {{ ward.total_beds }}</p>
+                    <p><strong>Available Beds:</strong>
+                        <span class="badge bg-success">{{ ward.available_beds }}</span>
+                    </p>
+                    <p><strong>Charge per Day:</strong> ₹{{ ward.charge_per_day|floatformat:2 }}</p>
+
+                    <div class="progress mb-2">
+                        {% widthratio ward.available_beds ward.total_beds 100 as available_percent %}
+                        <div class="progress-bar bg-success" style="width: {{ available_percent }}%">
+                            {{ available_percent }}% Available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-hospital-alt fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No wards found</p>
+                <a href="{% url 'ward_add' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add First Ward
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

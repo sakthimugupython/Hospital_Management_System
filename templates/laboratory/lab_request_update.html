@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Update Lab Request{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-flask"></i> Update Lab Request</h1>
+        <a href="{% url 'lab_request_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Request #{{ lab_request.request_number }}</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <p><strong>Patient:</strong> {{ lab_request.patient.get_full_name }}</p>
+                <p><strong>Test:</strong> {{ lab_request.test.test_name }}</p>
+                <p class="mb-0"><strong>Requested:</strong> {{ lab_request.requested_date|date:"M d, Y h:i A" }}</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="status" class="form-label">Status *</label>
+                    <select class="form-select" id="status" name="status" required>
+                        <option value="pending" {% if lab_request.status=='pending' %}selected{% endif %}>Pending
+                        </option>
+                        <option value="in_progress" {% if lab_request.status=='in_progress' %}selected{% endif %}>In
+                            Progress</option>
+                        <option value="completed" {% if lab_request.status=='completed' %}selected{% endif %}>Completed
+                        </option>
+                        <option value="cancelled" {% if lab_request.status=='cancelled' %}selected{% endif %}>Cancelled
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="result" class="form-label">Test Result</label>
+                    <textarea class="form-control" id="result" name="result"
+                        rows="4">{{ lab_request.result }}</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="report_file" class="form-label">Upload Report (PDF/Image)</label>
+                    <input type="file" class="form-control" id="report_file" name="report_file"
+                        accept=".pdf,.jpg,.jpeg,.png">
+                    {% if lab_request.report_file %}
+                    <small class="text-muted">Current file: <a href="{{ lab_request.report_file.url }}"
+                            target="_blank">View Report</a></small>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="2">{{ lab_request.notes }}</textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update Request
+                    </button>
+                    <a href="{% url 'lab_request_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

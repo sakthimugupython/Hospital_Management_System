@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}{{ patient.get_full_name }} - Patient Details{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-user-injured"></i> Patient Details</h1>
+        <div>
+            <a href="{% url 'patient_edit' patient.pk %}" class="btn btn-warning">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a href="{% url 'patient_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Patient Information Card -->
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-id-card"></i> Basic Information
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-user-circle fa-5x text-primary"></i>
+                    </div>
+                    <h4 class="text-center mb-3">{{ patient.get_full_name }}</h4>
+                    <table class="table table-sm">
+                        <tr>
+                            <th>Patient ID:</th>
+                            <td><strong>{{ patient.patient_id }}</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Gender:</th>
+                            <td>{{ patient.get_gender_display }}</td>
+                        </tr>
+                        <tr>
+                            <th>Date of Birth:</th>
+                            <td>{{ patient.date_of_birth|date:"M d, Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Age:</th>
+                            <td>{{ patient.date_of_birth|calculate_age }} years</td>
+                        </tr>
+                        <tr>
+                            <th>Blood Group:</th>
+                            <td><span class="badge bg-danger">{{ patient.blood_group }}</span></td>
+                        </tr>
+                        <tr>
+                            <th>Phone:</th>
+                            <td>{{ patient.phone }}</td>
+                        </tr>
+                        <tr>
+                            <th>Email:</th>
+                            <td>{{ patient.email|default:"N/A" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Registered:</th>
+                            <td>{{ patient.registered_date|date:"M d, Y" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <i class="fas fa-phone"></i> Emergency Contact
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ patient.emergency_contact_name }}</p>
+                    <p><strong>Phone:</strong> {{ patient.emergency_contact }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Medical Information -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-notes-medical"></i> Medical Information
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-history"></i> Medical History</h6>
+                        <p>{{ patient.medical_history|default:"No medical history recorded" }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <h6><i class="fas fa-allergies"></i> Allergies</h6>
+                        <p>{{ patient.allergies|default:"No known allergies" }}</p>
+                    </div>
+                    <div>
+                        <h6><i class="fas fa-map-marker-alt"></i> Address</h6>
+                        <p>{{ patient.address }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments -->
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-calendar-check"></i> Recent Appointments</span>
+                    <a href="{% url 'appointment_add' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Book Appointment
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in appointments %}
+                                <tr>
+                                    <td>{{ appointment.appointment_date|date:"M d, Y" }} {{ appointment.appointment_time|time:"h:i A" }}</td>
+                                    <td>Dr. {{ appointment.doctor.user.get_full_name }}</td>
+                                    <td><span class="badge bg-{{ appointment.status }}">{{ appointment.get_status_display }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No appointments found</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- OPD Records -->
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-procedures"></i> OPD Records</span>
+                    <a href="{% url 'opd_add' %}" class="btn btn-sm btn-success">
+                        <i class="fas fa-plus"></i> New OPD
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if opd_records %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>OPD #</th>
+                                    <th>Visit Date</th>
+                                    <th>Doctor</th>
+                                    <th>Diagnosis</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for opd in opd_records %}
+                                <tr>
+                                    <td><a href="{% url 'opd_detail' opd.pk %}">{{ opd.opd_number }}</a></td>
+                                    <td>{{ opd.visit_date|date:"M d, Y" }}</td>
+                                    <td>Dr. {{ opd.doctor.user.get_full_name }}</td>
+                                    <td>{{ opd.diagnosis|truncatewords:10 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No OPD records found</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Bills -->
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-file-invoice-dollar"></i> Billing History</span>
+                    <a href="{% url 'bill_add' %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-plus"></i> New Bill
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if bills %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Bill #</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bill in bills %}
+                                <tr>
+                                    <td>{{ bill.bill_number }}</td>
+                                    <td>{{ bill.created_at|date:"M d, Y" }}</td>
+                                    <td>₹{{ bill.total_amount|floatformat:2 }}</td>
+                                    <td><span class="badge bg-{{ bill.status }}">{{ bill.get_status_display }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'bill_detail' bill.pk %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center">No bills found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

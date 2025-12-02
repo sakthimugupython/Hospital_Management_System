@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lab Test Requests{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-flask"></i> Lab Test Requests</h1>
+        <a href="{% url 'lab_request_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Request
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-10">
+                    <select class="form-select" name="status">
+                        <option value="">All Status</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress
+                        </option>
+                        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed
+                        </option>
+                        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-list"></i> Test Requests
+        </div>
+        <div class="card-body">
+            {% if lab_requests %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Request #</th>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Test</th>
+                            <th>Requested Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in lab_requests %}
+                        <tr>
+                            <td><strong>{{ request.request_number }}</strong></td>
+                            <td>{{ request.patient.get_full_name }}</td>
+                            <td>Dr. {{ request.doctor.user.get_full_name }}</td>
+                            <td>{{ request.test.test_name }}</td>
+                            <td>{{ request.requested_date|date:"M d, Y h:i A" }}</td>
+                            <td><span class="badge bg-{{ request.status }}">{{ request.get_status_display }}</span></td>
+                            <td>
+                                <a href="{% url 'lab_request_update' request.pk %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-edit"></i> Update
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-vial fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No lab requests found</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

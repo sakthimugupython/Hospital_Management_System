@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Discharge Patient{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-sign-out-alt"></i> Discharge Patient</h1>
+        <a href="{% url 'ipd_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>IPD #{{ ipd_record.ipd_number }}</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <h6>Patient Information</h6>
+                <p><strong>Name:</strong> {{ ipd_record.patient.get_full_name }}</p>
+                <p><strong>Admission Date:</strong> {{ ipd_record.admission_date|date:"M d, Y h:i A" }}</p>
+                <p><strong>Ward/Bed:</strong> {{ ipd_record.bed.ward.ward_name }} - Bed {{ ipd_record.bed.bed_number }}
+                </p>
+                <p class="mb-0"><strong>Diagnosis:</strong> {{ ipd_record.diagnosis }}</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Confirm Discharge:</strong> Are you sure you want to discharge this patient? The bed will be
+                    marked as vacant.
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-check"></i> Confirm Discharge
+                    </button>
+                    <a href="{% url 'ipd_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

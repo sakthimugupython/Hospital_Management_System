@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Bill{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-file-invoice-dollar"></i> Create New Bill</h1>
+        <a href="{% url 'bill_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-calculator"></i> Bill Details
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="patient" class="form-label">Patient *</label>
+                    <select class="form-select" id="patient" name="patient" required>
+                        <option value="">Select Patient</option>
+                        {% for patient in patients %}
+                        <option value="{{ patient.pk }}">{{ patient.patient_id }} - {{ patient.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <h5 class="mb-3">Charges</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="consultation_fee" class="form-label">Consultation Fee (₹)</label>
+                        <input type="number" class="form-control" id="consultation_fee" name="consultation_fee"
+                            value="0" min="0" step="0.01" onchange="calculateBillTotal()">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="room_charges" class="form-label">Room Charges (₹)</label>
+                        <input type="number" class="form-control" id="room_charges" name="room_charges" value="0"
+                            min="0" step="0.01" onchange="calculateBillTotal()">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="medicine_charges" class="form-label">Medicine Charges (₹)</label>
+                        <input type="number" class="form-control" id="medicine_charges" name="medicine_charges"
+                            value="0" min="0" step="0.01" onchange="calculateBillTotal()">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="lab_charges" class="form-label">Lab Charges (₹)</label>
+                        <input type="number" class="form-control" id="lab_charges" name="lab_charges" value="0" min="0"
+                            step="0.01" onchange="calculateBillTotal()">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="other_charges" class="form-label">Other Charges (₹)</label>
+                        <input type="number" class="form-control" id="other_charges" name="other_charges" value="0"
+                            min="0" step="0.01" onchange="calculateBillTotal()">
+                    </div>
+                </div>
+
+                <h5 class="mb-3">Adjustments</h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="discount" class="form-label">Discount (₹)</label>
+                        <input type="number" class="form-control" id="discount" name="discount" value="0" min="0"
+                            step="0.01" onchange="calculateBillTotal()">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="tax" class="form-label">Tax (₹)</label>
+                        <input type="number" class="form-control" id="tax" name="tax" value="0" min="0" step="0.01"
+                            onchange="calculateBillTotal()">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="payment_method" class="form-label">Payment Method</label>
+                    <select class="form-select" id="payment_method" name="payment_method">
+                        <option value="">Select Payment Method</option>
+                        <option value="cash">Cash</option>
+                        <option value="card">Card</option>
+                        <option value="upi">UPI</option>
+                        <option value="insurance">Insurance</option>
+                    </select>
+                </div>
+
+                <div class="alert alert-info">
+                    <h5>Summary</h5>
+                    <p class="mb-1"><strong>Subtotal:</strong> ₹<span id="subtotal_display">0.00</span></p>
+                    <p class="mb-0"><strong>Total Amount:</strong> ₹<span id="total_display">0.00</span></p>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Create Bill
+                    </button>
+                    <a href="{% url 'bill_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function calculateBillTotal() {
+        const consultationFee = parseFloat(document.getElementById('consultation_fee').value) || 0;
+        const roomCharges = parseFloat(document.getElementById('room_charges').value) || 0;
+        const medicineCharges = parseFloat(document.getElementById('medicine_charges').value) || 0;
+        const labCharges = parseFloat(document.getElementById('lab_charges').value) || 0;
+        const otherCharges = parseFloat(document.getElementById('other_charges').value) || 0;
+        const discount = parseFloat(document.getElementById('discount').value) || 0;
+        const tax = parseFloat(document.getElementById('tax').value) || 0;
+
+        const subtotal = consultationFee + roomCharges + medicineCharges + labCharges + otherCharges;
+        const total = subtotal - discount + tax;
+
+        document.getElementById('subtotal_display').textContent = subtotal.toFixed(2);
+        document.getElementById('total_display').textContent = total.toFixed(2);
+    }
+</script>
+{% endblock %}

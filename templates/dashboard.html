@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+        <div class="text-muted">
+            <i class="fas fa-calendar"></i> {{ today|date:"F d, Y" }}
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stats-card primary">
+                <i class="fas fa-user-injured stats-icon"></i>
+                <h3>{{ total_patients }}</h3>
+                <p>Total Patients</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card success">
+                <i class="fas fa-user-md stats-icon"></i>
+                <h3>{{ total_doctors }}</h3>
+                <p>Total Doctors</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card info">
+                <i class="fas fa-calendar-check stats-icon"></i>
+                <h3>{{ appointments_today }}</h3>
+                <p>Appointments Today</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card warning">
+                <i class="fas fa-bed stats-icon"></i>
+                <h3>{{ available_beds }}</h3>
+                <p>Available Beds</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-rupee-sign"></i> Today's Revenue
+                </div>
+                <div class="card-body text-center">
+                    <h2 class="text-primary">₹{{ today_revenue|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i> Monthly Revenue
+                </div>
+                <div class="card-body text-center">
+                    <h2 class="text-success">₹{{ monthly_revenue|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-hospital-user"></i> IPD Patients
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="text-info">{{ ipd_patients }}</h3>
+                    <p class="text-muted mb-0">Currently Admitted</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-clock"></i> Pending Appointments
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="text-warning">{{ pending_appointments }}</h3>
+                    <p class="text-muted mb-0">Awaiting Approval</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-flask"></i> Pending Lab Tests
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="text-danger">{{ pending_lab_tests }}</h3>
+                    <p class="text-muted mb-0">Awaiting Results</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Appointments -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-calendar-alt"></i> Recent Appointments</span>
+                    <a href="{% url 'appointment_list' %}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Appointment #</th>
+                                    <th>Patient</th>
+                                    <th>Doctor</th>
+                                    <th>Date & Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in recent_appointments %}
+                                <tr>
+                                    <td>{{ appointment.appointment_number }}</td>
+                                    <td>{{ appointment.patient.get_full_name }}</td>
+                                    <td>Dr. {{ appointment.doctor.user.get_full_name }}</td>
+                                    <td>{{ appointment.appointment_date|date:"M d, Y" }} {{ appointment.appointment_time|time:"h:i A" }}</td>
+                                    <td><span class="badge bg-{{ appointment.status }}">{{ appointment.get_status_display }}</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="{% url 'appointment_edit' appointment.pk %}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            {% if appointment.status == 'pending' %}
+                                            <a href="{% url 'appointment_approve' appointment.pk %}" class="btn btn-sm btn-success">
+                                                <i class="fas fa-check"></i>
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted">No recent appointments</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Section -->
+    {% if low_stock_medicines > 0 %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Warning!</strong> {{ low_stock_medicines }} medicine(s) are running low on stock.
+                <a href="{% url 'medicine_list' %}?low_stock=1" class="alert-link">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

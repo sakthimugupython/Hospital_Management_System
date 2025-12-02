@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bills - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-file-invoice-dollar"></i> Billing</h1>
+        <a href="{% url 'bill_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Bill
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-10">
+                    <select class="form-select" name="status">
+                        <option value="">All Status</option>
+                        <option value="unpaid" {% if status_filter == 'unpaid' %}selected{% endif %}>Unpaid</option>
+                        <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>Paid</option>
+                        <option value="partial" {% if status_filter == 'partial' %}selected{% endif %}>Partial</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-list"></i> Bill List
+        </div>
+        <div class="card-body">
+            {% if bills %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Bill #</th>
+                            <th>Patient</th>
+                            <th>Date</th>
+                            <th>Total Amount</th>
+                            <th>Paid</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in bills %}
+                        <tr>
+                            <td><strong>{{ bill.bill_number }}</strong></td>
+                            <td>{{ bill.patient.get_full_name }}</td>
+                            <td>{{ bill.created_at|date:"M d, Y" }}</td>
+                            <td>₹{{ bill.total_amount|floatformat:2 }}</td>
+                            <td>₹{{ bill.amount_paid|floatformat:2 }}</td>
+                            <td>₹{{ bill.balance|floatformat:2 }}</td>
+                            <td><span class="badge bg-{{ bill.status }}">{{ bill.get_status_display }}</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'bill_detail' bill.pk %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if bill.status != 'paid' %}
+                                    <a href="{% url 'bill_payment' bill.pk %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-money-bill"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No bills found</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <h1 class="mb-4"><i class="fas fa-chart-bar"></i> Reports & Analytics</h1>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stats-card primary">
+                <i class="fas fa-calendar-day stats-icon"></i>
+                <h3>{{ daily_patients }}</h3>
+                <p>Patients Today</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card success">
+                <i class="fas fa-calendar-alt stats-icon"></i>
+                <h3>{{ monthly_patients }}</h3>
+                <p>Patients This Month</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card info">
+                <i class="fas fa-rupee-sign stats-icon"></i>
+                <h3>₹{{ daily_revenue|floatformat:0 }}</h3>
+                <p>Today's Revenue</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stats-card warning">
+                <i class="fas fa-chart-line stats-icon"></i>
+                <h3>₹{{ monthly_revenue|floatformat:0 }}</h3>
+                <p>Monthly Revenue</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Department Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-calendar-check"></i> Appointments
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="text-primary">{{ daily_appointments }}</h3>
+                    <p class="text-muted mb-0">Today</p>
+                    <hr>
+                    <h4 class="text-success">{{ monthly_appointments }}</h4>
+                    <p class="text-muted mb-0">This Month</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-procedures"></i> OPD
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="text-info">{{ opd_count }}</h3>
+                    <p class="text-muted mb-0">OPD Visits Today</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bed"></i> IPD
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="text-warning">{{ ipd_count }}</h3>
+                    <p class="text-muted mb-0">Currently Admitted</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Laboratory Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-flask"></i> Laboratory Statistics
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h4 class="text-primary">{{ lab_tests_today }}</h4>
+                            <p class="text-muted">Tests Today</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="text-success">Completed</h4>
+                            <p class="text-muted">Status Updates</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h4 class="text-warning">Pending</h4>
+                            <p class="text-muted">Awaiting Results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performing Doctors -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-trophy"></i> Top Performing Doctors
+                </div>
+                <div class="card-body">
+                    {% if top_doctors %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Doctor Name</th>
+                                    <th>Specialization</th>
+                                    <th>Total Appointments</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doctor in top_doctors %}
+                                <tr>
+                                    <td>
+                                        {% if forloop.counter == 1 %}
+                                        <i class="fas fa-trophy text-warning"></i>
+                                        {% elif forloop.counter == 2 %}
+                                        <i class="fas fa-medal text-secondary"></i>
+                                        {% elif forloop.counter == 3 %}
+                                        <i class="fas fa-award text-danger"></i>
+                                        {% else %}
+                                        {{ forloop.counter }}
+                                        {% endif %}
+                                    </td>
+                                    <td>Dr. {{ doctor.user.get_full_name }}</td>
+                                    <td>{{ doctor.specialization }}</td>
+                                    <td><span class="badge bg-primary">{{ doctor.appointment_count }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted">No data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

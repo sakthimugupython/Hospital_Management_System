@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bill #{{ bill.bill_number }}{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-file-invoice"></i> Bill Details</h1>
+        <div>
+            <button onclick="window.print()" class="btn btn-info">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <a href="{% url 'bill_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="card" id="billContent">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Hospital Management System</h4>
+                    <p class="mb-0">Invoice #{{ bill.bill_number }}</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="mb-0"><strong>Date:</strong> {{ bill.created_at|date:"M d, Y" }}</p>
+                    <p class="mb-0"><strong>Status:</strong> <span class="badge bg-{{ bill.status }}">{{ bill.get_status_display }}</span></p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Patient Information</h5>
+                    <p class="mb-1"><strong>Name:</strong> {{ bill.patient.get_full_name }}</p>
+                    <p class="mb-1"><strong>Patient ID:</strong> {{ bill.patient.patient_id }}</p>
+                    <p class="mb-1"><strong>Phone:</strong> {{ bill.patient.phone }}</p>
+                    <p class="mb-1"><strong>Address:</strong> {{ bill.patient.address }}</p>
+                </div>
+            </div>
+
+            <h5 class="mb-3">Charges Breakdown</h5>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th class="text-end">Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if bill.consultation_fee > 0 %}
+                    <tr>
+                        <td>Consultation Fee</td>
+                        <td class="text-end">{{ bill.consultation_fee|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if bill.room_charges > 0 %}
+                    <tr>
+                        <td>Room Charges</td>
+                        <td class="text-end">{{ bill.room_charges|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if bill.medicine_charges > 0 %}
+                    <tr>
+                        <td>Medicine Charges</td>
+                        <td class="text-end">{{ bill.medicine_charges|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if bill.lab_charges > 0 %}
+                    <tr>
+                        <td>Laboratory Charges</td>
+                        <td class="text-end">{{ bill.lab_charges|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if bill.other_charges > 0 %}
+                    <tr>
+                        <td>Other Charges</td>
+                        <td class="text-end">{{ bill.other_charges|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Subtotal</th>
+                        <th class="text-end">{{ bill.subtotal|floatformat:2 }}</th>
+                    </tr>
+                    {% if bill.discount > 0 %}
+                    <tr>
+                        <td>Discount</td>
+                        <td class="text-end text-danger">-{{ bill.discount|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if bill.tax > 0 %}
+                    <tr>
+                        <td>Tax</td>
+                        <td class="text-end">{{ bill.tax|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr class="table-primary">
+                        <th>Total Amount</th>
+                        <th class="text-end">₹{{ bill.total_amount|floatformat:2 }}</th>
+                    </tr>
+                    <tr class="table-success">
+                        <th>Amount Paid</th>
+                        <th class="text-end">₹{{ bill.amount_paid|floatformat:2 }}</th>
+                    </tr>
+                    <tr class="table-warning">
+                        <th>Balance Due</th>
+                        <th class="text-end">₹{{ bill.balance|floatformat:2 }}</th>
+                    </tr>
+                </tbody>
+            </table>
+
+            {% if bill.payment_method %}
+            <p><strong>Payment Method:</strong> {{ bill.get_payment_method_display }}</p>
+            {% endif %}
+
+            {% if bill.balance > 0 %}
+            <div class="alert alert-warning mt-3">
+                <i class="fas fa-exclamation-triangle"></i> Outstanding balance: ₹{{ bill.balance|floatformat:2 }}
+                <a href="{% url 'bill_payment' bill.pk %}" class="btn btn-sm btn-success ms-3">
+                    <i class="fas fa-money-bill"></i> Make Payment
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

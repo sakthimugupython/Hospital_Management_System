@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}IPD Records{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-bed"></i> IPD Records</h1>
+        <a href="{% url 'ipd_add' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Admit Patient
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-list"></i> IPD List
+        </div>
+        <div class="card-body">
+            {% if ipd_records %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>IPD #</th>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Ward/Bed</th>
+                            <th>Admission Date</th>
+                            <th>Diagnosis</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ipd in ipd_records %}
+                        <tr>
+                            <td><strong>{{ ipd.ipd_number }}</strong></td>
+                            <td>{{ ipd.patient.get_full_name }}</td>
+                            <td>Dr. {{ ipd.doctor.user.get_full_name }}</td>
+                            <td>{{ ipd.bed.ward.ward_name }} - Bed {{ ipd.bed.bed_number }}</td>
+                            <td>{{ ipd.admission_date|date:"M d, Y h:i A" }}</td>
+                            <td>{{ ipd.diagnosis|truncatewords:5 }}</td>
+                            <td><span class="badge bg-{{ ipd.status }}">{{ ipd.get_status_display }}</span></td>
+                            <td>
+                                {% if ipd.status == 'admitted' %}
+                                <a href="{% url 'ipd_discharge' ipd.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-sign-out-alt"></i> Discharge
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-bed fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No IPD records found</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
